@@ -14,11 +14,9 @@
   
   <body>
     
-    <svg id="viz" height="500" width="800" style="border: 1px solid grey;">
-    </svg>
-    
-    <script>
-      
+    <script type="text/javascript">
+
+			
 window.addEventListener("load",run);
       
 
@@ -34,8 +32,8 @@ window.addEventListener("load",run);
 function run () {
 
     var category = "age";
-    var data2013 = getDataRows(category,2013);
-    var data2014 = getDataRows(category,2014);
+    var datatwitter = getDataRows(category,"twitter");
+    var datalinkedin = getDataRows(category,"linkedin");
 
     var svg = d3.select("#viz");
 
@@ -52,9 +50,9 @@ function run () {
     //   there is one bar width between them
     // note that every data point now has _2_ bars associated with 
     //   it
-    var barWidth = chartWidth/(3*data2013.length-1);
+    var barWidth = chartWidth/(3*datatwitter.length-1);
 
-    var data = [data2013,data2014];
+    var data = [datatwitter,datalinkedin];
     var color = ["blue","darkblue"];
 
     // first draw all the 2013 bars, then the 2014 bars
@@ -95,7 +93,7 @@ function run () {
 
     // show the labels (position them centered with respect 
     // to _both_ 2013 and 2014 bars
-    data2013.forEach(function(v,i) {
+    datatwitter.forEach(function(v,i) {
 	svg.append("text")
 	    .attr("x",margin+(i*3)*barWidth+barWidth)
 	    .attr("y",margin+chartHeight+50)
@@ -114,7 +112,7 @@ function run () {
 
 //schema : site, category, group, value
 
-function getDataRows (category,year) {
+function getDataRows (category,value) {
     var data = [
 	{ site:"linkedin", category:"gender", group:"men", value:26},
 	{ site:"linkedin", category:"gender", group:"women", value:25},
@@ -163,9 +161,9 @@ function getDataRows (category,year) {
     ];
     
     return data.filter(function(row) {
-	return (row.category===category && row.year===year) ; });
+	return (row.category===category && row.value===value) ; });
 }
-      
+
     </script>
     
   </body>
