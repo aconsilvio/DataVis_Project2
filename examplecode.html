@@ -33,79 +33,7 @@ window.addEventListener("load",run);
 
 function run () {
 
-    var category = "age";
-    var data2013 = getDataRows(category,2013);
-    var data2014 = getDataRows(category,2014);
-
-    var svg = d3.select("#viz");
-
-    // get the size of the SVG element
-    var height = svg.attr("height");
-    var width = svg.attr("width");
-
-    // the chart lives in the svg surrounded by a margin of 100px
-    var margin = 100;
-    var chartHeight = height - 2*margin;
-    var chartWidth = width - 2*margin;
-
-    // figure out the width of the bars so that all bars fit and 
-    //   there is one bar width between them
-    // note that every data point now has _2_ bars associated with 
-    //   it
-    var barWidth = chartWidth/(3*data2013.length-1);
-
-    var data = [data2013,data2014];
-    var color = ["blue","darkblue"];
-
-    // first draw all the 2013 bars, then the 2014 bars
-    data.forEach(function(d,j) {
-	d.forEach(function(v,i) {
-	    // compute the height of the bar as a proportion of the 
-	    // available chartHeight
-	    var barHeight = chartHeight*v.value/100;
-	    // figure out where the vetical bar starts
-	    var yPos = height-margin-barHeight;
-
-	    // create bar & value text
-	    // add some styles to make it pretty too
-
-            svg.append("rect")
-		.attr("x",margin+(i*3+j)*barWidth)
-		.attr("y",yPos)
-		.attr("width",barWidth)
-		.attr("height",barHeight)
-		.style("stroke","white")
-		.style("stroke-width","2px")
-		.style("fill",color[j]);
-
-	    svg.append("text")
-		.attr("x",margin+(i*3+j)*barWidth+barWidth/2)
- 		.attr("y",yPos-20)
-		.attr("dy","0.3em")
-		.style("text-anchor","middle")
-		.style("font-family","sans-serif")
-		.style("font-weight","bold")
-		.style("font-size","16px")
-		.style("fill",color[j])
-		.text(v.value+"%");
-	});
-
-    });
-
-
-    // show the labels (position them centered with respect 
-    // to _both_ 2013 and 2014 bars
-    data2013.forEach(function(v,i) {
-	svg.append("text")
-	    .attr("x",margin+(i*3)*barWidth+barWidth)
-	    .attr("y",margin+chartHeight+50)
-	    .attr("dy","0.3em")
-	    .style("text-anchor","middle")
-	    .style("font-family","sans-serif")
-	    .style("font-size","20px")
-	    .text(v.group);
-    });
-
+    firstType("all", "age");
 }		 
 
 /* From 
@@ -114,7 +42,7 @@ function run () {
 
 //schema : site, category, group, value
 
-function getDataRows (category,year) {
+function getDataRows (category) {
     var data = [
 	{ site:"linkedin", category:"gender", group:"men", value:26},
 	{ site:"linkedin", category:"gender", group:"women", value:25},
@@ -122,7 +50,7 @@ function getDataRows (category,year) {
 	{ site:"linkedin", category:"race", group:"Black, Non-Hispanic", value:22},
 	{ site:"linkedin", category:"race", group:"Hispanic", value:22},	
 	{ site:"linkedin", category:"age", group:"18-29", value:22},		
-	{ site:"linkedin", category:"age", group:"20-49", value:32},		
+	{ site:"linkedin", category:"age", group:"30-49", value:32},		
 	{ site:"linkedin", category:"age", group:"50-64", value:26},		
 	{ site:"linkedin", category:"age", group:"65+", value:12},		
 	{ site:"linkedin", category:"education", group:"High school grad or less", value:9},		
@@ -144,7 +72,7 @@ function getDataRows (category,year) {
 	{ site:"twitter", category:"race", group:"Black, Non-Hispanic", value:28},
 	{ site:"twitter", category:"race", group:"Hispanic", value:28},	
 	{ site:"twitter", category:"age", group:"18-29", value:32},		
-	{ site:"twitter", category:"age", group:"20-49", value:29},		
+	{ site:"twitter", category:"age", group:"30-49", value:29},		
 	{ site:"twitter", category:"age", group:"50-64", value:13},		
 	{ site:"twitter", category:"age", group:"65+", value:6},		
 	{ site:"twitter", category:"education", group:"High school grad or less", value:19},		
@@ -224,8 +152,94 @@ function getDataRows (category,year) {
     ];
     
     return data.filter(function(row) {
-	return (row.category===category && row.year===year) ; });
+	return (row.category===category) ; });
 }
+
+
+function firstType (sites, category) {
+
+    var category = "age";
+    var group1 = "18-29";
+    var group2 = "30-49";
+    var group3 = "50-64";
+    var group4 = "65+";
+    var data1 = getDataRows(category,group1);
+    var data2 = getDataRows(category, group2);
+    var data3 = getDataRows(category, group3);
+    var data4 = getDataRows(category, group4);
+
+
+    var svg = d3.select("#viz");
+
+    // get the size of the SVG element
+    var height = svg.attr("height");
+    var width = svg.attr("width");
+
+    // the chart lives in the svg surrounded by a margin of 100px
+    var margin = 50;
+    var chartHeight = height - 2*margin;
+    var chartWidth = width - 2*margin;
+
+    // figure out the width of the bars so that all bars fit and 
+    //   there is one bar width between them
+    // note that every data point now has _2_ bars associated with 
+    //   it
+
+    var data = [data1, data2, data3, data4];
+    var color = ["blue","darkblue","green","darkgreen"];
+
+    var barWidth = chartWidth/((data.length+1)*data1.length-1);
+
+    // first draw all the 2013 bars, then the 2014 bars
+    data.forEach(function(d,j) {
+	d.forEach(function(v,i) {
+	    // compute the height of the bar as a proportion of the 
+	    // available chartHeight
+	    var barHeight = chartHeight*v.value/100;
+	    // figure out where the vetical bar starts
+	    var yPos = height-margin-barHeight;
+
+	    // create bar & value text
+	    // add some styles to make it pretty too
+
+            svg.append("rect")
+		.attr("x",margin+(i*(data.length+1)+j)*barWidth)
+		.attr("y",yPos)
+		.attr("width",barWidth)
+		.attr("height",barHeight)
+		.style("stroke","white")
+		.style("stroke-width","2px")
+		.style("fill",color[j]);
+
+	    svg.append("text")
+		.attr("x",margin+(i*(data.length+1)+j)*barWidth+barWidth/2)
+ 		.attr("y",yPos-20)
+		.attr("dy","0.3em")
+		.style("text-anchor","middle")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","16px")
+		.style("fill",color[j])
+		.text(v.value+"%");
+	});
+
+    });
+
+
+    // show the labels (position them centered with respect 
+    // to _both_ 2013 and 2014 bars
+    data1.forEach(function(v,i) {
+	svg.append("text")
+	    .attr("x",margin+(i*3)*barWidth+barWidth)
+	    .attr("y",margin+chartHeight+25)
+	    .attr("dy","0.3em")
+	    .style("text-anchor","middle")
+	    .style("font-family","sans-serif")
+	    .style("font-size","15px")
+	    .text(v.group);
+    });
+}
+
       
     </script>
     
