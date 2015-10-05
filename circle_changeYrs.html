@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    
+    <meta charset="utf-8">
+    <title>Social Media Viz Demo</title>
+
+    <!-- load D3 library -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+
+  </head>
+  
+  <body>
+    
+    <svg id="viz" height="500" width="800" style="border: 1px solid grey;">
+    </svg>
+    
+    <script>
+      
+window.addEventListener("load",seeChange);
+      
+
+/*
+ * Demo: social media 2013-2014 data
+ * 
+ * Version charting two years
+ * Using D3 for DOM manipulation
+ *
+ */
+
+
+function run () {
+    var category = "age";
+    var data2013 = getDataRows(category,2013);
+    var data2014 = getDataRows(category,2014);
+    var svg = d3.select("#viz");
+
+    // get the size of the SVG element
+    var height = svg.attr("height");
+    var width = svg.attr("width");
+
+    // the chart lives in the svg surrounded by a margin of 100px
+    var margin = 100;
+    var chartHeight = height - 2*margin;
+    var chartWidth = width - 2*margin;
+
+    // figure out the width of the bars so that all bars fit and 
+    //   there is one bar width between them
+    // note that every data point now has _2_ bars associated with 
+    //   it
+    var barWidth = chartWidth/(3*data2013.length-1);
+
+    var data = [data2013,data2014];
+    var color = ["blue","darkblue"];
+
+    // first draw all the 2013 bars, then the 2014 bars
+    data.forEach(function(d,j) {
+	d.forEach(function(v,i) {
+	    // compute the height of the bar as a proportion of the 
+	    // available chartHeight
+	    var barHeight = chartHeight*v.value/100;
+	    // figure out where the vetical bar starts
+	    var yPos = height-margin-barHeight;
+
+	    // create bar & value text
+	    // add some styles to make it pretty too
+
+        svg.append("rect")
+		.attr("x",margin+(i*3+j)*barWidth)
+		.attr("y",yPos)
+		.attr("width",barWidth)
+		.attr("height",barHeight)
+		.style("stroke","white")
+		.style("stroke-width","2px")
+		.style("fill",color[j]);
+
+	    svg.append("text")
+		.attr("x",margin+(i*3+j)*barWidth+barWidth/2)
+ 		.attr("y",yPos-20)
+		.attr("dy","0.3em")
+		.style("text-anchor","middle")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","16px")
+		.style("fill",color[j])
+		.text(v.value+"%");
+	});
+
+    });
+    console.log('made rectangles');
+
+    // show the labels (position them centered with respect 
+    // to _both_ 2013 and 2014 bars
+    data2013.forEach(function(v,i) {
+	svg.append("text")
+	    .attr("x",margin+(i*3)*barWidth+barWidth)
+	    .attr("y",margin+chartHeight+50)
+	    .attr("dy","0.3em")
+	    .style("text-anchor","middle")
+	    .style("font-family","sans-serif")
+	    .style("font-size","20px")
+	    .text(v.group);
+    });
+
+}		 
+function seeChange () {
+    var data2013 = getDataRows(2013);
+    var data2014 = getDataRows(2014);
+    var svg = d3.select("#viz");
+
+    // get the size of the SVG element
+    var height = svg.attr("height");
+    var width = svg.attr("width");
+
+    // the chart lives in the svg surrounded by a margin of 100px
+    var margin = 50;
+    var chartHeight = height - 2*margin;
+    var chartWidth = width - 2*margin;
+    // figure out the width of the bars so that all bars fit and 
+    //   there is one bar width between them
+    // note that every data point now has _2_ bars associated with 
+    //   it
+    //var maxArea = Math.PI*Math.pow(chartWidth/(2*data2013.length), 2);
+    var estR = chartWidth/(2.5*data2013.length-1);
+
+    var data = [data2014, data2013];
+    var color = ["lightblue","lightgreen"];
+
+    // first draw all the 2014 circles, then 2013
+    data.forEach(function(d,j) {
+	d.forEach(function(v,i) {
+	    //var radius = Math.sqrt(v.value*.01*maxArea/Math.PI);
+	    var radius = 7*Math.sqrt(v.value/Math.PI);
+	    // figure out where the vetical bar starts
+	    var yPos = height-margin-.5*Math.pow(radius*5/7,2);
+
+        svg.append("circle")
+		.attr("cx",margin+(i*2.5)*estR)//*Math.sqrt(maxArea/Math.PI))
+		.attr("cy",yPos)
+		.attr("r", Math.round(radius))
+		.style("stroke","white")
+		.style("stroke-width","2px")
+		.style("fill",color[j]);
+
+		// create bar & value text
+	    // add some styles to make it pretty too
+	    svg.append("text")
+		.attr("x",margin+(i*2.5)*estR)//*Math.sqrt(maxArea/Math.PI))
+ 		.attr("y",yPos)
+		.attr("dy","0.3em")
+		.style("text-anchor","middle")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","12px")
+		.style("fill","black")
+		.append("tspan")
+		.attr("x",margin+(i*2.5)*estR)
+		.text(v.group)
+		.append("tspan")
+		.attr("x",margin+(i*2.5)*estR)
+		.attr("dy", 10)
+		.text("("+v.year+")");
+
+		
+	});
+
+    });
+    
+    // show the labels (position them centered with respect 
+    // to _both_ 2013 and 2014 bars
+    /*
+    data2013.forEach(function(v,i) {
+	svg.append("text")
+	    .attr("x",margin+(i*3)*maxArea*.1+maxArea/20)
+	    .attr("y",margin+chartHeight+50)
+	    .attr("dy","0.3em")
+	    .style("text-anchor","middle")
+	    .style("font-family","sans-serif")
+	    .style("font-size","20px")
+	    .text(v.group);
+    });
+	*/
+}	
+/* From 
+   http://www.pewinternet.org/files/2015/01/PI_SocialMediaUpdate20144.pdf
+*/
+
+//schema : site, category, group, value
+
+function getDataRows (year) { //include category for run()
+    var data = [
+	{ site:"linkedin", category:"gender", year:2013, group:"men", value:17},
+	{ site:"linkedin", category:"gender", year:2013, group:"women", value:18},
+	{ site:"linkedin", category:"race", year:2013, group:"White, Non-Hispanic", value:16},	
+	{ site:"linkedin", category:"race", year:2013, group:"Black, Non-Hispanic", value:22},
+	{ site:"linkedin", category:"race", year:2013, group:"Hispanic", value:22},	
+	{ site:"linkedin", category:"age", year:2013, group:"18-29", value:22},		
+	{ site:"linkedin", category:"age", year:2013, group:"20-49", value:32},		
+	{ site:"linkedin", category:"age", year:2013, group:"50-64", value:26},		
+	{ site:"linkedin", category:"age", year:2013, group:"65+", value:12},		
+	{ site:"linkedin", category:"education", year:2013, group:"High school grad or less", value:9},		
+	{ site:"linkedin", category:"education", year:2013, group:"Some college", value:25},		
+	{ site:"linkedin", category:"education", year:2013, group:"College+", value:46},
+	{ site:"linkedin", category:"salary", year:2013, group:"Less than $30,000/yr", value:17},				
+	{ site:"linkedin", category:"salary", year:2013, group:"$30,000-$49,999", value:21},				
+	{ site:"linkedin", category:"salary", year:2013, group:"$50,000-$74,999", value:32},
+	{ site:"linkedin", category:"salary", year:2013, group:"$75,000+", value:41},				
+	{ site:"linkedin", category:"employment", year:2013, group:"Employed", value:32},				
+	{ site:"linkedin", category:"employment", group:"Not employed", value:41},				
+	{ site:"linkedin", category:"location", year:2013, group:"Urban", value:30},				
+	{ site:"linkedin", category:"location", year:2013, group:"Suburban", value:26},				
+	{ site:"linkedin", category:"location", year:2013, group:"Rural", value:12},				
+	
+	{ site:"twitter", category:"gender", year:2013, group:"men", value:17},
+	{ site:"twitter", category:"gender", year:2013, group:"women", value:18},
+	{ site:"twitter", category:"race", year:2013, group:"White, Non-Hispanic", value:16},	
+	{ site:"twitter", category:"race", year:2013, group:"Black, Non-Hispanic", value:29},
+	{ site:"twitter", category:"race", year:2013, group:"Hispanic", value:16},	
+	{ site:"twitter", category:"age", year:2013, group:"18-29", value:31},		
+	{ site:"twitter", category:"age", year:2013, group:"20-49", value:19},		
+	{ site:"twitter", category:"age", year:2013, group:"50-64", value:9},		
+	{ site:"twitter", category:"age", year:2013, group:"65+", value:5},		
+	{ site:"twitter", category:"education", year:2013, group:"High school grad or less", value:17},		
+	{ site:"twitter", category:"education", year:2013, group:"Some college", value:18},	
+	{ site:"twitter", category:"education", year:2013, group:"College+", value:18},
+	{ site:"twitter", category:"salary", year:2013, group:"Less than $30,000/yr", value:17},				
+	{ site:"twitter", category:"salary", year:2013, group:"$30,000-$49,999", value:18},	
+	{ site:"twitter", category:"salary", year:2013, group:"$50,000-$74,999", value:15},
+	{ site:"twitter", category:"salary", year:2013, group:"$75,000+", value:19},				
+	{ site:"twitter", category:"employment", year:2013, group:"Employed", value:0},		
+	{ site:"twitter", category:"employment", year:2013, group:"Not employed", value:0},			
+	{ site:"twitter", category:"location", year:2013, group:"Urban", value:18},		
+	{ site:"twitter", category:"location", year:2013, group:"Suburban", value:19},	
+	{ site:"twitter", category:"location", year:2013, group:"Rural", value:11},				
+	{ site:"twitter", category:"gender", year:2014, group:"men", value:24},
+	{ site:"twitter", category:"gender", year:2014, group:"women", value:21},
+	{ site:"twitter", category:"race", year:2014, group:"White, Non-Hispanic", value:21},	
+	{ site:"twitter", category:"race", year:2014, group:"Black, Non-Hispanic", value:27},
+	{ site:"twitter", category:"race", year:2014, group:"Hispanic", value:25},	
+	{ site:"twitter", category:"age", year:2014, group:"18-29", value:37},		
+	{ site:"twitter", category:"age", year:2014, group:"20-49", value:25},		
+	{ site:"twitter", category:"age", year:2014, group:"50-64", value:12},		
+	{ site:"twitter", category:"age", year:2014, group:"65+", value:10},		
+	{ site:"twitter", category:"education", year:2014, group:"High school grad or less", value:16},		
+	{ site:"twitter", category:"education", year:2014, group:"Some college", value:24},	
+	{ site:"twitter", category:"education", year:2014, group:"College+", value:30},
+	{ site:"twitter", category:"salary", year:2014, group:"Less than $30,000/yr", value:20},				
+	{ site:"twitter", category:"salary", year:2014, group:"$30,000-$49,999", value:21},	
+	{ site:"twitter", category:"salary", year:2014, group:"$50,000-$74,999", value:27},
+	{ site:"twitter", category:"salary", year:2014, group:"$75,000+", value:27},				
+	{ site:"twitter", category:"employment", year:2013, group:"Employed", value:0},		
+	{ site:"twitter", category:"employment", year:2013, group:"Not employed", value:0},			
+	{ site:"twitter", category:"location", year:2013, group:"Urban", value:25},		
+	{ site:"twitter", category:"location", year:2013, group:"Suburban", value:23},	
+	{ site:"twitter", category:"location", year:2013, group:"Rural", value:17},								
+	{ site:"facebook", category:"gender", year:2014, group:"men", value:66},
+	{ site:"facebook", category:"gender", year:2014, group:"women", value:77},
+	{ site:"facebook", category:"race", year:2014, group:"White, Non-Hispanic", value:71},	
+	{ site:"facebook", category:"race", year:2014, group:"Black, Non-Hispanic", value:67},
+	{ site:"facebook", category:"race", year:2014, group:"Hispanic", value:73},	
+	{ site:"facebook", category:"age", year:2014, group:"18-29", value:87},		
+	{ site:"facebook", category:"age", year:2014, group:"30-49", value:73},		
+	{ site:"facebook", category:"age", year:2014, group:"50-64", value:63},		
+	{ site:"facebook", category:"age", year:2014, group:"65+", value:56},		
+	{ site:"facebook", category:"education", year:2014, group:"High school grad or less", value:70},		
+	{ site:"facebook", category:"education", year:2014, group:"Some college", value:71},		
+	{ site:"facebook", category:"education", year:2014, group:"College+", value:74},
+	{ site:"facebook", category:"salary", year:2014, group:"Less than $30,000/yr", value:77},				
+	{ site:"facebook", category:"salary", year:2014, group:"$30,000-$49,999", value:69},				
+	{ site:"facebook", category:"salary", year:2014, group:"$50,000-$74,999", value:74},
+	{ site:"facebook", category:"salary", year:2014, group:"$75,000+", value:72},			
+	{ site:"facebook", category:"location", year:2014, group:"Urban", value:71},				
+	{ site:"facebook", category:"location", year:2014, group:"Suburban", value:72},				
+	{ site:"facebook", category:"location", year:2014, group:"Rural", value:69},	
+
+	{ site:"facebook", category:"gender", year:2013, group:"men", value:66},
+	{ site:"facebook", category:"gender", year:2013, group:"women", value:76},
+	{ site:"facebook", category:"race", year:2013, group:"White, Non-Hispanic", value:71},	
+	{ site:"facebook", category:"race", year:2013, group:"Black, Non-Hispanic", value:76},
+	{ site:"facebook", category:"race", year:2013, group:"Hispanic", value:73},	
+	{ site:"facebook", category:"age", year:2013, group:"18-29", value:84},		
+	{ site:"facebook", category:"age", year:2013, group:"30-49", value:79},		
+	{ site:"facebook", category:"age", year:2013, group:"50-64", value:60},		
+	{ site:"facebook", category:"age", year:2013, group:"65+", value:45},		
+	{ site:"facebook", category:"education", year:2013, group:"High school grad or less", value:71},		
+	{ site:"facebook", category:"education", year:2013, group:"Some college", value:75},		
+	{ site:"facebook", category:"education", year:2013, group:"College+", value:68},
+	{ site:"facebook", category:"salary", year:2013, group:"Less than $30,000/yr", value:76},				
+	{ site:"facebook", category:"salary", year:2013, group:"$30,000-$49,999", value:76},				
+	{ site:"facebook", category:"salary", year:2013, group:"$50,000-$74,999", value:68},
+	{ site:"facebook", category:"salary", year:2013, group:"$75,000+", value:69},			
+	{ site:"facebook", category:"location", year:2013, group:"Urban", value:75},				
+	{ site:"facebook", category:"location", year:2013, group:"Suburban", value:69},				
+	{ site:"facebook", category:"location", year:2013, group:"Rural", value:71},	
+
+	{ site:"pinterest", category:"gender", group:"men", value:16},
+	{ site:"pinterest", category:"gender", group:"women", value:44},
+	{ site:"pinterest", category:"race", group:"White, Non-Hispanic", value:32},	
+	{ site:"pinterest", category:"race", group:"Black, Non-Hispanic", value:23},
+	{ site:"pinterest", category:"race", group:"Hispanic", value:32},	
+	{ site:"pinterest", category:"age", group:"18-29", value:37},		
+	{ site:"pinterest", category:"age", group:"30-49", value:36},		
+	{ site:"pinterest", category:"age", group:"50-64", value:24},		
+	{ site:"pinterest", category:"age", group:"65+", value:16},		
+	{ site:"pinterest", category:"education", group:"High school grad or less", value:25},		
+	{ site:"pinterest", category:"education", group:"Some college", value:37},		
+	{ site:"pinterest", category:"education", group:"College+", value:31},
+	{ site:"pinterest", category:"salary", group:"Less than $30,000/yr", value:24},				
+	{ site:"pinterest", category:"salary", group:"$30,000-$49,999", value:37},				
+	{ site:"pinterest", category:"salary", group:"$50,000-$74,999", value:41},
+	{ site:"pinterest", category:"salary", group:"$75,000+", value:30},			
+	{ site:"pinterest", category:"location", group:"Urban", value:26},				
+	{ site:"pinterest", category:"location", group:"Suburban", value:34},				
+	{ site:"pinterest", category:"location", group:"Rural", value:31},	
+
+
+	{ site:"instagram", category:"gender", group:"men", value:24},
+	{ site:"instagram", category:"gender", group:"women", value:31},
+	{ site:"instagram", category:"race", group:"White, Non-Hispanic", value:21},
+	{ site:"instagram", category:"race", group:"Black, Non-Hispanic", value:47},
+	{ site:"instagram", category:"race", group:"Hispanic", value:38},	
+	{ site:"instagram", category:"age", group:"18-29", value:55},		
+	{ site:"instagram", category:"age", group:"30-49", value:28},		
+	{ site:"instagram", category:"age", group:"50-64", value:11},		
+	{ site:"instagram", category:"age", group:"65+", value:4},		
+	{ site:"instagram", category:"education", group:"High school grad or less", value:25},		
+	{ site:"instagram", category:"education", group:"Some college", value:32},	
+	{ site:"instagram", category:"education", group:"College+", value:26},
+	{ site:"instagram", category:"salary", group:"Less than $30,000/yr", value:26},
+	{ site:"instagram", category:"salary", group:"$30,000-$49,999", value:27},	
+	{ site:"instagram", category:"salary", group:"$50,000-$74,999", value:30},
+	{ site:"instagram", category:"salary", group:"$75,000+", value:26},			
+	{ site:"instagram", category:"location", group:"Urban", value:32},			
+	{ site:"instagram", category:"location", group:"Suburban", value:28},		
+	{ site:"instagram", category:"location", group:"Rural", value:18}	
+    ];
+    return data.filter(function(row) {
+		return (row.site==="facebook" && row.year===year) ; });//take out the && row.category===category for seeChange ()
+}
+      
+    </script>
+    
+  </body>
+  
+</html>
+
