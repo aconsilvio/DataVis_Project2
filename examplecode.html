@@ -35,7 +35,7 @@ function run () {
    http://www.pewinternet.org/files/2015/01/PI_SocialMediaUpdate20144.pdf
 */
 //schema : site, category, group, value
-function getDataRows (category) {
+function getDataRows (site,category, group) {
     var data = [
 	{ site:"linkedin", category:"gender", group:"men", value:26},
 	{ site:"linkedin", category:"gender", group:"women", value:25},
@@ -100,6 +100,7 @@ function getDataRows (category) {
 	{ site:"facebook", category:"location", group:"Urban", value:74},				
 	{ site:"facebook", category:"location", group:"Suburban", value:72},				
 	{ site:"facebook", category:"location", group:"Rural", value:67},	
+
 	{ site:"pinterest", category:"gender", group:"men", value:16},
 	{ site:"pinterest", category:"gender", group:"women", value:44},
 	{ site:"pinterest", category:"race", group:"White, Non-Hispanic", value:32},	
@@ -119,6 +120,7 @@ function getDataRows (category) {
 	{ site:"pinterest", category:"location", group:"Urban", value:26},				
 	{ site:"pinterest", category:"location", group:"Suburban", value:34},				
 	{ site:"pinterest", category:"location", group:"Rural", value:31},	
+
 	{ site:"instagram", category:"gender", group:"men", value:24},
 	{ site:"instagram", category:"gender", group:"women", value:31},
 	{ site:"instagram", category:"race", group:"White, Non-Hispanic", value:21},
@@ -141,34 +143,46 @@ function getDataRows (category) {
     ];
     
     return data.filter(function(row) {
-	return (row.category===category) ; });
+	return (row.site===site && row.category === category && row.group === group) ; });
 }
-function firstType (sites, category) {
-    var category = "age";
+function firstType (sites, category, group) {
+    var age = "age";
     var group1 = "18-29";
     var group2 = "30-49";
     var group3 = "50-64";
     var group4 = "65+";
-    var data1 = getDataRows(category,group1);
-    var data2 = getDataRows(category, group2);
-    var data3 = getDataRows(category, group3);
-    var data4 = getDataRows(category, group4);
+    var insta = "instagram";
+    var linked = "linkedin";
+    var twit = "twitter";
+    var pin = "pinterest";
+    var fb = "facebook";
+    var group_options = 4; //number of age groups
+    var site_options = 2;//number of sites called
+    var insta_age1 = getDataRows(insta, age, group1);
+    var insta_age2 = getDataRows(insta, age, group2);
+    var insta_age3 = getDataRows(insta, age, group3);
+    var insta_age4 = getDataRows(insta, age, group4);
+    var linked_age1 = getDataRows(linked, age, group1);
+    var linked_age2 = getDataRows(linked, age, group2);
+    var linked_age3 = getDataRows(linked, age, group3);
+    var linked_age4 = getDataRows(linked, age, group4);
     var svg = d3.select("#viz");
     // get the size of the SVG element
     var height = svg.attr("height");
     var width = svg.attr("width");
     // the chart lives in the svg surrounded by a margin of 100px
-    var margin = 50;
+    var margin = 20;
     var chartHeight = height - 2*margin;
-    var chartWidth = width - 2*margin;
+    var chartWidth = width -2*margin;
     // figure out the width of the bars so that all bars fit and 
     //   there is one bar width between them
     // note that every data point now has _2_ bars associated with 
     //   it
-    var data = [data1, data2, data3, data4];
-    var color = ["blue","darkblue","green","darkgreen"];
-    var barWidth = chartWidth/((data.length+1)*data1.length-1);
-    // first draw all the 2013 bars, then the 2014 bars
+    var data = [insta_age1, insta_age2, insta_age3, insta_age4, linked_age1, linked_age2, linked_age3, linked_age4];
+    var color = ["blue","darkblue","green","darkgreen","blue","darkblue","green","darkgreen"];
+    //var barWidth = chartWidth/((site_options+1)*(group_options-1));  //need to make 4 based on size of category
+    var barWidth = chartWidth/(3*data.length-1);
+
     data.forEach(function(d,j) {
 	d.forEach(function(v,i) {
 	    // compute the height of the bar as a proportion of the 
@@ -178,7 +192,7 @@ function firstType (sites, category) {
 	    var yPos = height-margin-barHeight;
 	    // create bar & value text
 	    // add some styles to make it pretty too
-            svg.append("rect")
+        svg.append("rect")
 		.attr("x",margin+(i*(data.length+1)+j)*barWidth)
 		.attr("y",yPos)
 		.attr("width",barWidth)
@@ -186,6 +200,7 @@ function firstType (sites, category) {
 		.style("stroke","white")
 		.style("stroke-width","2px")
 		.style("fill",color[j]);
+
 	    svg.append("text")
 		.attr("x",margin+(i*(data.length+1)+j)*barWidth+barWidth/2)
  		.attr("y",yPos-20)
@@ -196,21 +211,19 @@ function firstType (sites, category) {
 		.style("font-size","16px")
 		.style("fill",color[j])
 		.text(v.value+"%");
-	});
-    });
-    // show the labels (position them centered with respect 
-    // to _both_ 2013 and 2014 bars
-    data1.forEach(function(v,i) {
-	svg.append("text")
-	    .attr("x",margin+(i*3)*barWidth+barWidth)
-	    .attr("y",margin+chartHeight+25)
+
+		svg.append("text")
+		.attr("x",margin+(i*(data.length+1)+j)*barWidth+barWidth/2)
+	    .attr("y",chartHeight+margin+10)
 	    .attr("dy","0.3em")
 	    .style("text-anchor","middle")
 	    .style("font-family","sans-serif")
-	    .style("font-size","15px")
+	    .style("font-size","13px")
 	    .text(v.group);
-    });
-}
+	    console.log(v.age)
+	});
+  });
+    }
       
     </script>
     
