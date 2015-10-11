@@ -14,8 +14,7 @@
   
   <body>
     
-    <svg id="viz" height="500" width="800" style="border: 1px solid grey;">
-    </svg>
+   
     
     <script>
       
@@ -29,15 +28,28 @@ window.addEventListener("load",run);
  *
  */
 function run () {
+	var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];  
+	//probably a better way to do this by getting specific elements of data (ie. data.site)
+	var category_list = ["gender", "race", "age", "education", "salary", "employment", "location"];
+	var num_svg = site_list.length * category_list.length;
+	var counter = 0;
+	make_svgs(num_svg);
 	//circle('facebook', 'age', "viz");
-	bar ('twitter', 'salary', "viz");
-
-}		 
+	for (var s = 0; s < site_list.length; s++)
+		{
+			for (var c = 0; c < category_list.length; c++)
+			{
+				bar(site_list[s], category_list[c], "svg" + counter);
+				counter += 1;
+			}
+		}		 
+}
 /* From 
    http://www.pewinternet.org/files/2015/01/PI_SocialMediaUpdate20144.pdf
 */
 //schema : site, category, group, value
-function getDataRows (site,category) {
+function getDataRows (site,category) 
+{
     var data = [
 	{ site:"linkedin", category:"gender", group:"men", value:26},
 	{ site:"linkedin", category:"gender", group:"women", value:25},
@@ -157,41 +169,68 @@ function bar(site,category,svg_id)
     var height = svg.attr("height");
     var width = svg.attr("width");
 
-    var margin = 50;
+    var margin = 20;
     var chartHeight = height - 2*margin;
     var chartWidth = width - 2*margin;
     var padding = 5; 
     var barWidth= chartWidth/data.length - padding;
 
-    var color = "#cecece";
+    var color_list =["#407F7F", "#226666", "#0D4D4D", "#003333"];
     svg.selectAll('rect')
     	.data(data)
     	.enter()
     	.append('rect')
     	.attr('x', function(d, i){return margin+i*chartWidth/data.length;})
-    	.attr('y', function(d){return chartHeight- d.value*4;})
+    	.attr('y', function(d){return chartHeight+ margin- d.value * .01 * (chartHeight - 1.5 * margin) - 35;})
     	.attr('width', barWidth)
-    	.attr('height', function(d){return d.value*4;})
-    	.attr('fill', function(d){return 'rgb(0,'+(d.value*10)+',0)';});
+    	.attr('height', function(d){return (d.value * .01 * (chartHeight - 1.5 * margin));})
+    	.attr('fill', function(d,i) {return color_list[i];});
     
 	svg.selectAll('text')
 		.data(data)
 		.enter()
 		.append("text")
 		.text(function(d){return d.value + "%";})
-		.attr("x",function(d, i){return margin+barWidth/2+i*chartWidth/data.length;})
- 		.attr("y",function(d){return chartHeight- d.value*4 +20;})
-		.attr("dy","0.3em")
+		.attr("x",function(d, i){return margin + barWidth / 2 + i * chartWidth / data.length;})
+ 		.attr("y", chartHeight + margin - 38)
+ 		//.attr("y",function(d){return chartHeight + margin - d.value * .01 * (chartHeight - 1.5 *margin) + d.value * .2 * .01 * (chartHeight - 1.5 * margin);})
+		//.attr("dy","0.3em")
 		.style("text-anchor","middle")
 		.style("font-family","sans-serif")
 		.style("font-weight","bold")
 		.style("font-size","12px")
-		.style("fill","black")
+		.style("fill", "white")
 		.append("tspan")
 		.text(function(d){return d.group})
 		.attr("x",function(d, i){return margin+barWidth/2+i*chartWidth/data.length;})
-		.attr("dy", 20)
+		.attr("y", function(d){return chartHeight;})
+		.style("fill", "#669999");
+
+	svg.append("text")
+		.text(site.toUpperCase())
+		.attr("x", width/2)
+		.attr("y", margin)
+		.style("text-anchor","middle")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","15px")
+		.style("fill", "#669999");
+
+
+
 }
+
+function get_barheight(site, category)
+	{
+		    var height = svg.attr("height");
+    var width = svg.attr("width");
+
+    var margin = 50;
+    var chartHeight = height - 2*margin;
+    var chartWidth = width - 2*margin;
+		var data = getDataRows(site, category);
+
+	}
 
 function circle(site,category,svg_id)
 {
@@ -217,12 +256,10 @@ function circle(site,category,svg_id)
 
     // first draw all the 2014 circles, then 2013
 	sorted_data.forEach(function(v,i) {
-		console.log(v, i)
 	    //var radius = Math.sqrt(v.value*.01*maxArea/Math.PI);
 	    var radius = 10*Math.sqrt(v.value/Math.PI);
 	    // figure out where the vetical bar starts
 	    var yPos = height/2 - margin;
-	    console.log(i, margin+(i*2.5)*est_radius);
         svg.append("circle")
 		.attr("cx",margin+(i*2.5)*est_radius+ radius)
 		.attr("cy",yPos)
@@ -248,11 +285,40 @@ function circle(site,category,svg_id)
 		.append("tspan")
 		.attr("x",margin+(i*2.5)*est_radius + radius)
 		.attr("dy", 10)
-		.text("("+v.site+")");
-    });
-    
+		.text("("+v.group+")");
 
+		svg.append("text")
+		.text(site)
+		.attr("x", width/2)
+		.attr("y", margin)
+		.style("text-anchor","middle")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","12px")
+		.style("fill", "green");
+    });
 }
+    
+    function make_svgs(num_svg)
+    {
+    	var height = 350;
+    	var width = 500;
+    	var margin = 10;
+    	for (var i = 0; i < num_svg; i++)
+    	{
+    		var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    		svg.setAttribute("width", width);
+    		svg.setAttribute("height", height);
+    		svg.setAttribute("x", i%3 * (width + margin));
+    		svg.setAttribute("y", Math.floor(i/3) * (height + margin));
+    		svg.setAttribute('style', 'border: 1px solid black');
+    		svg.setAttribute("id", "svg"+i);
+    		document.body.appendChild(svg);
+    	}
+
+    }
+
+
 
     </script>
     
