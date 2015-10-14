@@ -63,7 +63,7 @@ function getDataRows (site,category)
 	{ site:"linkedin", category:"education", group:"High school grad or less", value:9},		
 	{ site:"linkedin", category:"education", group:"Some college", value:25},		
 	{ site:"linkedin", category:"education", group:"College+", value:46},
-	{ site:"linkedin", category:"salary", group:"Less than $30,000/yr", value:17},				
+	{ site:"linkedin", category:"salary", group:"Less than $30,000", value:17},				
 	{ site:"linkedin", category:"salary", group:"$30,000-$49,999", value:21},				
 	{ site:"linkedin", category:"salary", group:"$50,000-$74,999", value:32},
 	{ site:"linkedin", category:"salary", group:"$75,000+", value:41},				
@@ -85,7 +85,7 @@ function getDataRows (site,category)
 	{ site:"twitter", category:"education", group:"High school grad or less", value:19},		
 	{ site:"twitter", category:"education", group:"Some college", value:23},		
 	{ site:"twitter", category:"education", group:"College+", value:27},
-	{ site:"twitter", category:"salary", group:"Less than $30,000/yr", value:21},				
+	{ site:"twitter", category:"salary", group:"Less than $30,000", value:21},				
 	{ site:"twitter", category:"salary", group:"$30,000-$49,999", value:19},				
 	{ site:"twitter", category:"salary", group:"$50,000-$74,999", value:25},
 	{ site:"twitter", category:"salary", group:"$75,000+", value:26},				
@@ -107,7 +107,7 @@ function getDataRows (site,category)
 	{ site:"facebook", category:"education", group:"High school grad or less", value:71},		
 	{ site:"facebook", category:"education", group:"Some college", value:72},		
 	{ site:"facebook", category:"education", group:"College+", value:72},
-	{ site:"facebook", category:"salary", group:"Less than $30,000/yr", value:73},				
+	{ site:"facebook", category:"salary", group:"Less than $30,000", value:73},				
 	{ site:"facebook", category:"salary", group:"$30,000-$49,999", value:72},				
 	{ site:"facebook", category:"salary", group:"$50,000-$74,999", value:66},
 	{ site:"facebook", category:"salary", group:"$75,000+", value:78},			
@@ -127,7 +127,7 @@ function getDataRows (site,category)
 	{ site:"pinterest", category:"education", group:"High school grad or less", value:25},		
 	{ site:"pinterest", category:"education", group:"Some college", value:37},		
 	{ site:"pinterest", category:"education", group:"College+", value:31},
-	{ site:"pinterest", category:"salary", group:"Less than $30,000/yr", value:24},				
+	{ site:"pinterest", category:"salary", group:"Less than $30,000", value:24},				
 	{ site:"pinterest", category:"salary", group:"$30,000-$49,999", value:37},				
 	{ site:"pinterest", category:"salary", group:"$50,000-$74,999", value:41},
 	{ site:"pinterest", category:"salary", group:"$75,000+", value:30},			
@@ -147,7 +147,7 @@ function getDataRows (site,category)
 	{ site:"instagram", category:"education", group:"High school grad or less", value:25},		
 	{ site:"instagram", category:"education", group:"Some college", value:32},	
 	{ site:"instagram", category:"education", group:"College+", value:26},
-	{ site:"instagram", category:"salary", group:"Less than $30,000/yr", value:26},
+	{ site:"instagram", category:"salary", group:"Less than $30,000", value:26},
 	{ site:"instagram", category:"salary", group:"$30,000-$49,999", value:27},	
 	{ site:"instagram", category:"salary", group:"$50,000-$74,999", value:30},
 	{ site:"instagram", category:"salary", group:"$75,000+", value:26},			
@@ -201,7 +201,7 @@ function bar(site,category,svg_id)
 		.style("font-size","12px")
 		.style("fill", "white")
 		.append("tspan")
-		.text(function(d){return d.group})
+		.text(function(d){return d.group.toUpperCase()})
 		.attr("x",function(d, i){return margin+barWidth/2+i*chartWidth/data.length;})
 		.attr("y", function(d){return chartHeight;})
 		.style("fill", "#669999");
@@ -311,7 +311,7 @@ function circle(site,category,svg_id)
     		svg.setAttribute("height", height);
     		svg.setAttribute("x", i%3 * (width + margin));
     		svg.setAttribute("y", Math.floor(i/3) * (height + margin));
-    		svg.setAttribute('style', 'border: 1px solid black');
+    		svg.setAttribute('style', 'border: 1px solid gray');
     		svg.setAttribute("id", "svg"+i);
     		document.body.appendChild(svg);
     	}
