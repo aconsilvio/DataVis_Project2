@@ -30,7 +30,8 @@ window.addEventListener("load",run);
 function run () {
 	var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];  
 	//probably a better way to do this by getting specific elements of data (ie. data.site)
-	var category_list = ["gender", "race", "age", "education", "salary", "employment", "location"];
+	var category_list = ["gender", "race", "age", "education", "salary", "location"];
+	//employment is not included in these charts because it is only available for 1/5  sites
 	var num_svg = site_list.length * category_list.length;
 	var counter = 0;
 	make_svgs(num_svg);
@@ -39,7 +40,8 @@ function run () {
 		{
 			for (var c = 0; c < category_list.length; c++)
 			{
-				bar(site_list[s], category_list[c], "svg" + counter);
+				//bar(site_list[s],category_list[c], "svg" + counter);
+				stackedbars(category_list[c], "svg" + counter);
 				counter += 1;
 			}
 		}		 
@@ -89,8 +91,8 @@ function getDataRows (site,category)
 	{ site:"twitter", category:"salary", group:"$30,000-$49,999", value:19},				
 	{ site:"twitter", category:"salary", group:"$50,000-$74,999", value:25},
 	{ site:"twitter", category:"salary", group:"$75,000+", value:26},				
-	{ site:"twitter", category:"employment", group:"Employed", value:0},				
-	{ site:"twitter", category:"employment", group:"Not employed", value:0},				
+	// { site:"twitter", category:"employment", group:"Employed", value:0},				
+	// { site:"twitter", category:"employment", group:"Not employed", value:0},				
 	{ site:"twitter", category:"location", group:"Urban", value:30},				
 	{ site:"twitter", category:"location", group:"Suburban", value:21},				
 	{ site:"twitter", category:"location", group:"Rural", value:15},				
@@ -220,17 +222,37 @@ function bar(site,category,svg_id)
 
 }
 
-function get_barheight(site, category)
-	{
-		    var height = svg.attr("height");
+function stackedbars(category, svg_id)
+{
+	var svg = d3.select("#"+svg_id);
+	var last_y_height = 0;
+	var site_list = ["linkedin", "pinterest", "facebook", "instagram", "twitter"];
+	var color_list =["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"];
+	var height = svg.attr("height");
     var width = svg.attr("width");
-
-    var margin = 50;
+    var margin = 20;
     var chartHeight = height - 2*margin;
     var chartWidth = width - 2*margin;
-		var data = getDataRows(site, category);
+    var padding = 5; 
+    var barWidth= chartWidth/site_list.length - padding;
 
-	}
+	for (var i = 0; i < site_list.length; i++)
+		{
+	 	var data = getDataRows(site_list[i], category);
+		svg.selectAll('rect')
+	    	.data(data)
+	    	.enter()
+	    	.append('rect')
+	    	.attr('x', function() {return barWidth*i+padding*i+margin;}) 
+	    	.attr('y', function(d){return chartHeight+ margin- d.value * .01 * (chartHeight - 1.5 * margin) - 35 - last_y_height;})
+	    	.attr('width', barWidth)
+	    	.attr('height', function(d){last_y_height = last_y_height + (d.value * .01 * (chartHeight - 1.5 * margin)); console.log(last_y_height); return (d.value * .01 * (chartHeight - 1.5 * margin));})
+	    	.attr('fill', function(d,i) {return color_list[i];});
+		}
+
+
+
+}
 
 function circle(site,category,svg_id)
 {
