@@ -41,7 +41,8 @@ function run () {
 			for (var c = 0; c < category_list.length; c++)
 			{
 				//bar(site_list[s],category_list[c], "svg" + counter);
-				stackedbars(category_list[c], "svg" + counter);
+				circle_plotting(category_list[c], "svg"+counter);
+				//stackedbars(category_list[c], "svg" + counter);
 				counter += 1;
 			}
 		}		 
@@ -222,39 +223,39 @@ function bar(site,category,svg_id)
 
 }
 
-function stackedbars(category, svg_id)
-{
-	var svg = d3.select("#"+svg_id);
-	var last_y_height = 0;
-	var site_list = ["linkedin", "pinterest", "facebook", "instagram", "twitter"];
-	var color_list =["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"];
-	var height = svg.attr("height");
-    var width = svg.attr("width");
-    var margin = 20;
-    var chartHeight = height - 2*margin;
-    var chartWidth = width - 2*margin;
-    var padding = 5; 
-    var barWidth= chartWidth/site_list.length - padding;
+// function stackedbars(category, svg_id)
+// {
+// 	var svg = d3.select("#"+svg_id);
+// 	var last_y_height = 0;
+// 	var site_list = ["linkedin", "pinterest", "facebook", "instagram", "twitter"];
+// 	var color_list =["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"];
+// 	var height = svg.attr("height");
+//     var width = svg.attr("width");
+//     var margin = 20;
+//     var chartHeight = height - 2*margin;
+//     var chartWidth = width - 2*margin;
+//     var padding = 5; 
+//     var barWidth= chartWidth/site_list.length - padding;
 
-	for (var i = 0; i < site_list.length; i++)
-		{
-	 	var data = getDataRows(site_list[i], category);
-		svg.selectAll('rect')
-	    	.data(data)
-	    	.enter()
-	    	.append('rect')
-	    	.attr('x', function() {return barWidth*i+padding*i+margin;}) 
-	    	.attr('y', function(d){return chartHeight+ margin- d.value * .01 * (chartHeight - 1.5 * margin) - 35 - last_y_height;})
-	    	.attr('width', barWidth)
-	    	.attr('height', function(d){last_y_height = last_y_height + (d.value * .01 * (chartHeight - 1.5 * margin)); console.log(last_y_height); return (d.value * .01 * (chartHeight - 1.5 * margin));})
-	    	.attr('fill', function(d,i) {return color_list[i];});
-		}
+// 	for (var i = 0; i < site_list.length; i++)
+// 		{
+// 	 	var data = getDataRows(site_list[i], category);
+// 		svg.selectAll('rect')
+// 	    	.data(data)
+// 	    	.enter()
+// 	    	.append('rect')
+// 	    	.attr('x', function() {return barWidth*i+padding*i+margin;}) 
+// 	    	.attr('y', function(d){return chartHeight+ margin- d.value * .01 * (chartHeight - 1.5 * margin) - 35 - last_y_height;})
+// 	    	.attr('width', barWidth)
+// 	    	.attr('height', function(d){last_y_height = last_y_height + (d.value * .01 * (chartHeight - 1.5 * margin)); console.log(last_y_height); return (d.value * .01 * (chartHeight - 1.5 * margin));})
+// 	    	.attr('fill', function(d,i) {return color_list[i];});
+// 		}
 
 
 
-}
+// }
 
-function circle(site,category,svg_id)
+function circle(site, category,svg_id, site_index)
 {
     var data = getDataRows(site, category);
     var svg = d3.select("#"+svg_id);
@@ -264,7 +265,7 @@ function circle(site,category,svg_id)
     var width = svg.attr("width");
 
     // the chart lives in the svg surrounded by a margin of 100px
-    var margin = 50;
+    var margin = 10;
     var chartHeight = height - 2*margin;
     var chartWidth = width - 2*margin;
     // figure out the width of the bars so that all bars fit and 
@@ -272,59 +273,80 @@ function circle(site,category,svg_id)
     // note that every data point now has _2_ bars associated with 
     //   it
     //var maxArea = Math.PI*Math.pow(chartWidth/(2*data2013.length), 2);
-    var sorted_data= data.sort()
-    var est_radius = chartWidth/(2.5*sorted_data.length-1);
-    var color = "lightblue";
+    var est_radius = .5*chartWidth/(data.length);
+    var max_radius = .5 * chartWidth/data.length;
+    console.log(max_radius)
+    var color_list ="#0099CC";
+    var sum_data = 0;
+
+    data.forEach(function(v,i)
+    {
+       sum_data += v.value;
+    })
 
     // first draw all the 2014 circles, then 2013
-	sorted_data.forEach(function(v,i) {
+	data.forEach(function(v,i) {
+		x_pos = chartWidth/5 *site_index+ margin + max_radius;
+
 	    //var radius = Math.sqrt(v.value*.01*maxArea/Math.PI);
-	    var radius = 10*Math.sqrt(v.value/Math.PI);
+	    //var radius = 15*Math.sqrt(v.value/Math.PI);
+
+	    var radius = v.value / sum_data * max_radius;
 	    // figure out where the vetical bar starts
-	    var yPos = height/2 - margin;
+	    var yPos = height - margin - radius;
         svg.append("circle")
-		.attr("cx",margin+(i*2.5)*est_radius+ radius)
+		.attr("cx",x_pos)
 		.attr("cy",yPos)
 		.attr("r", Math.round(radius))
+		.style("fill",color_list)
+		.style("opacity", .4)
 		.style("stroke","white")
-		.style("stroke-width","2px")
-		.style("fill",color);
+		.style("stroke-width","1px");
 
 		// create bar & value text
 	    // add some styles to make it pretty too
-	    svg.append("text")
-		.attr("x",margin+(i*2.5)*est_radius + radius)
- 		.attr("y",yPos)
-		.attr("dy","0.3em")
-		.style("text-anchor","middle")
-		.style("font-family","sans-serif")
-		.style("font-weight","bold")
-		.style("font-size","12px")
-		.style("fill","black")
-		.append("tspan")
-		.attr("x",margin+(i*2.5)*est_radius + radius)
-		.text(v.value)
-		.append("tspan")
-		.attr("x",margin+(i*2.5)*est_radius + radius)
-		.attr("dy", 10)
-		.text("("+v.group+")");
+	 //    svg.append("text")
+		// .attr("x",margin+(i*2.5)*est_radius + radius)
+ 	// 	.attr("y",yPos)
+		// .attr("dy","0.3em")
+		// .style("text-anchor","middle")
+		// .style("font-family","sans-serif")
+		// .style("font-weight","bold")
+		// .style("font-size","12px")
+		// .style("fill","black")
+		// .append("tspan")
+		// .attr("x",margin+(i*2.5)*est_radius + radius)
+		// .text(v.value)
+		// .append("tspan")
+		// .attr("x",margin+(i*2.5)*est_radius + radius)
+		// .attr("dy", 10)
+		// .text("("+v.group+")");
 
-		svg.append("text")
-		.text(site)
-		.attr("x", width/2)
-		.attr("y", margin)
-		.style("text-anchor","middle")
-		.style("font-family","sans-serif")
-		.style("font-weight","bold")
-		.style("font-size","12px")
-		.style("fill", "green");
+		// svg.append("text")
+		// .text(site)
+		// .attr("x", width/2)
+		// .attr("y", margin)
+		// .style("text-anchor","middle")
+		// .style("font-family","sans-serif")
+		// .style("font-weight","bold")
+		// .style("font-size","12px")
+		// .style("fill", "green");
     });
+}
+
+function circle_plotting(category, svg_id)
+{
+	var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];  
+	for (var i = 0; i < site_list.length; i++)
+	{
+		circle(site_list[i],category, svg_id, i);
+	}
 }
     
     function make_svgs(num_svg)
     {
     	var height = 350;
-    	var width = 500;
+    	var width = 800;
     	var margin = 10;
     	for (var i = 0; i < num_svg; i++)
     	{
