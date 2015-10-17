@@ -32,19 +32,23 @@ function run () {
 	//probably a better way to do this by getting specific elements of data (ie. data.site)
 	var category_list = ["gender", "race", "age", "education", "salary", "location"];
 	//employment is not included in these charts because it is only available for 1/5  sites
-	var num_svg = site_list.length * category_list.length;
+	var num_svg = site_list.length * category_list.length + category_list.length; //number of svgs for part 1 + number of svgs for part 2
 	var counter = 0;
 	make_svgs(num_svg);
 	//circle('facebook', 'age', "viz");
+	//circle_plotting("age","svg1")
 	for (var s = 0; s < site_list.length; s++)
 		{
 			for (var c = 0; c < category_list.length; c++)
 			{
-				//bar(site_list[s],category_list[c], "svg" + counter);
-				circle_plotting(category_list[c], "svg"+counter);
-				//stackedbars(category_list[c], "svg" + counter);
+				bar(site_list[s],category_list[c], "svg" + counter);
 				counter += 1;
 			}
+		}
+	for (var c = 0; c < category_list.length; c++)
+		{
+			circle_plotting(category_list[c], "svg" + counter);
+			counter += 1;
 		}		 
 }
 /* From 
@@ -258,6 +262,7 @@ function bar(site,category,svg_id)
 function circle(site, category,svg_id, site_index)
 {
     var data = getDataRows(site, category);
+    console.log(data.length);
     var svg = d3.select("#"+svg_id);
 
     // get the size of the SVG element
@@ -265,7 +270,8 @@ function circle(site, category,svg_id, site_index)
     var width = svg.attr("width");
 
     // the chart lives in the svg surrounded by a margin of 100px
-    var margin = 10;
+    var margin = 50;
+    var padding = 10;
     var chartHeight = height - 2*margin;
     var chartWidth = width - 2*margin;
     // figure out the width of the bars so that all bars fit and 
@@ -273,15 +279,13 @@ function circle(site, category,svg_id, site_index)
     // note that every data point now has _2_ bars associated with 
     //   it
     //var maxArea = Math.PI*Math.pow(chartWidth/(2*data2013.length), 2);
-    var est_radius = .5*chartWidth/(data.length);
-    var max_radius = .5 * chartWidth/data.length;
-    console.log(max_radius)
+    var max_radius = Math.round(.5 * chartWidth/data.length);
     var color_list ="#0099CC";
-    var sum_data = 0;
+    var sum_data = 0; 
 
     data.forEach(function(v,i)
     {
-       sum_data += v.value;
+       sum_data += v.value; //sum values for each site/category
     })
 
     // first draw all the 2014 circles, then 2013
@@ -293,7 +297,7 @@ function circle(site, category,svg_id, site_index)
 
 	    var radius = v.value / sum_data * max_radius;
 	    // figure out where the vetical bar starts
-	    var yPos = height - margin - radius;
+	    var yPos = height - margin - radius - padding;
         svg.append("circle")
 		.attr("cx",x_pos)
 		.attr("cy",yPos)
@@ -303,17 +307,17 @@ function circle(site, category,svg_id, site_index)
 		.style("stroke","white")
 		.style("stroke-width","1px");
 
-		// create bar & value text
-	    // add some styles to make it pretty too
-	 //    svg.append("text")
-		// .attr("x",margin+(i*2.5)*est_radius + radius)
- 	// 	.attr("y",yPos)
+		//label circles with group name
+	 	svg.append("text")
+		.attr("x",x_pos)
+ 	 	.attr("y",yPos- radius) //plot label on top of circle
 		// .attr("dy","0.3em")
-		// .style("text-anchor","middle")
-		// .style("font-family","sans-serif")
-		// .style("font-weight","bold")
-		// .style("font-size","12px")
-		// .style("fill","black")
+		.style("text-anchor","middle")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","12px")
+		.style("fill","black")
+		.text(v.group+", "+v.value+"%");
 		// .append("tspan")
 		// .attr("x",margin+(i*2.5)*est_radius + radius)
 		// .text(v.value)
@@ -322,16 +326,29 @@ function circle(site, category,svg_id, site_index)
 		// .attr("dy", 10)
 		// .text("("+v.group+")");
 
-		// svg.append("text")
-		// .text(site)
-		// .attr("x", width/2)
-		// .attr("y", margin)
-		// .style("text-anchor","middle")
-		// .style("font-family","sans-serif")
-		// .style("font-weight","bold")
-		// .style("font-size","12px")
-		// .style("fill", "green");
-    });
+		//label sites
+		svg.append("text")
+		.text(v.site)
+		.attr("x", x_pos)
+		.attr("y", height - margin)
+		.style("text-anchor","middle")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","12px")
+		.style("fill", "black");
+	});
+		
+		//title of chart
+		svg.append("text")
+		.text(category)
+		.attr("x", width/2)
+		.attr("y", margin)
+		.style("text-anchor","middle")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","16px")
+		.style("fill", color_list);
+
 }
 
 function circle_plotting(category, svg_id)
@@ -339,6 +356,7 @@ function circle_plotting(category, svg_id)
 	var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];  
 	for (var i = 0; i < site_list.length; i++)
 	{
+		console.log('call circle function ' + i);
 		circle(site_list[i],category, svg_id, i);
 	}
 }
