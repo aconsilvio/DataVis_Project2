@@ -9,11 +9,17 @@
     <!-- load D3 library -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
-
+    <style>
+    h1{
+    	color:#669999;
+    	font-family: sans-serif;
+    	font-size: 16px;
+    }
+    </style>
   </head>
   
   <body>
-   
+  <h1> Presented by Annabel Consilvio, Hayley Hansson, and Celine Ta. </h1>
   <h1>To see all statistics from one site, click one of the buttons below.  This will change all bar graph visualizations below to represent this website at the same time. </h1>
    <button id ="button_pinterest">Pinterest</button>
    <button id ="button_twitter">Twitter</button>
@@ -21,7 +27,7 @@
    <button id ="button_instagram">Instagram</button>
    <button id ="button_linkedin">LinkedIn</button>
     <br>
-   <h2>For graphs comparing these sites, go to <a href="#pt2">Summary Graphs</a>.
+   <h1>For graphs comparing these sites, go to <a href="#pt2">Summary Graphs</a>.</h1>
     <script>
       
 window.addEventListener("load",run);
@@ -103,8 +109,7 @@ function updateView(category, site, svg_id)
     var chartWidth = width - 2*margin;
     var padding = 5; 
     var barWidth= chartWidth/data.length - padding;
-    c
-
+    
     // bind data to bars 
 	changing_bars= svg.selectAll("g")
 	.data(data);
@@ -278,7 +283,7 @@ function circle(site, category,svg_id, site_index)
 		.style("font-family","sans-serif")
 		.style("font-weight","bold")
 		.style("font-size","12px")
-		.style("fill", "black");
+		.style("fill", "#669999");
 	});
 		
 		//title of chart
@@ -290,7 +295,7 @@ function circle(site, category,svg_id, site_index)
 		.style("font-family","sans-serif")
 		.style("font-weight","bold")
 		.style("font-size","16px")
-		.style("fill", "black");
+		.style("fill", "#669999");
 
 }
 
