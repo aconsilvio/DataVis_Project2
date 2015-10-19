@@ -103,7 +103,7 @@ function updateView(category, site, svg_id)
     var chartWidth = width - 2*margin;
     var padding = 5; 
     var barWidth= chartWidth/data.length - padding;
-    var color_list =["#407F7F", "#226666", "#0D4D4D", "#003333"];
+    c
 
     // bind data to bars 
 	changing_bars= svg.selectAll("g")
@@ -226,7 +226,7 @@ function circle(site, category,svg_id, site_index)
     var chartWidth = width - 2*margin;
     
     var max_radius = Math.round(.5 * chartWidth/site_list.length);
-    var color_list ="black"; //since the viz relies on semi-transparent overlays, only one color is necessary 
+    var color_list =["#407F7F", "#226666", "#0D4D4D", "#003333"]; //since the viz relies on semi-transparent overlays, only one color is necessary 
     var sum_data = 0; // initialized to 0 before being reassigned below
 
     var sortedData = data.sort(function(a,b){return a.value - b.value;}).reverse(); //sort data by size, so that the largest circle plots in the back (for tooltips)
@@ -241,11 +241,15 @@ function circle(site, category,svg_id, site_index)
 	sortedData.forEach(function(v,i) {
 		// set tooltip style
 	    var tooltip = d3.select("body")
-		.append("div")
+		.append("text")
 		.style("position", "absolute")
 		.style("z-index", "10")
 		.style("visibility", "hidden")
 		.style("background", "white")
+		.style("font-family","sans-serif")
+		.style("font-weight","bold")
+		.style("font-size","15px")
+		.style("text-transform", "uppercase")
 		.text(v.group + ", " + v.value);
 
 		// set circle style + position
@@ -256,7 +260,7 @@ function circle(site, category,svg_id, site_index)
 		.attr("cx",x_pos)
 		.attr("cy",yPos)
 		.attr("r", Math.round(radius))
-		.style("fill",color_list)
+		.style("fill",color_list[i])
 		.style("opacity", .4)
 		.style("stroke","white")
 		.style("stroke-width","1px")
