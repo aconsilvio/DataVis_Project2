@@ -28,21 +28,15 @@
 window.addEventListener("load",run);
       
 /*
- * Demo: social media 2013-2014 data
- * 
- * Version charting two years
- * Using D3 for DOM manipulation
- *
+ * Social media 2015 data from Pew Research
  */
 function run () {
-	var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];  
-	//probably a better way to do this by getting specific elements of data (ie. data.site)
-	var category_list = ["gender", "race", "age", "education", "salary", "location"];
-	//employment is not included in these charts because it is only available for 1/5  sites
-	//var num_svg = site_list.length * category_list.length + category_list.length; //number of svgs for part 1 + number of svgs for part 2
+	var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];  //probably a better way to do this by getting specific elements of data (ie. data.site)
+	var category_list = ["gender", "race", "age", "education", "salary", "location"]; //employment is not included in these charts because it is only available for 1/5  sites
 	var num_svg = category_list.length * 2;
-	make_svgs(num_svg);
+	make_svgs(num_svg); // initialize number of SVGS needed 
 
+		// each button press runs a for loop updating every SVG
 		button_twitter.addEventListener("click",function() 
 				{ for (var i = 0; i < category_list.length; i++) 
 					{ updateView(category_list[i],"twitter", "svg"+ i);  } 
@@ -63,14 +57,14 @@ function run () {
 		    	{ for (var i = 0; i < category_list.length; i++) 
 					{ updateView(category_list[i],"instagram", "svg"+ i); } 
 				});
-
+	// for loop to add content to first SVGs (site-specific content)
 	var new_counter = 0;
 	for (var i = 0; i < category_list.length; i++) 
 	{
 		initializeView(category_list[i], "linkedin", "svg" + new_counter);
 		new_counter += 1;
 	};
-
+	// for loop to add content to summary visualizations (part 2 of project)
 	var counter = category_list.length;
 	for (var c = 0; c < category_list.length; c++)
 		{
@@ -81,11 +75,13 @@ function run () {
 
 function initializeView (category, site, svg_id) 
 {
+	// function to keep code modular, in case of switching to other visualization function besides bar()
 	bar(site, category, svg_id);
 	}
 
 function updateView(category, site, svg_id)
 {
+	// updates content based on which button (site) is pressed, for part 1 of project
 	var data = getDataRows(site, category);
     var svg = d3.select("#"+svg_id);
 
@@ -93,47 +89,49 @@ function updateView(category, site, svg_id)
     var height = svg.attr("height");
     var width = svg.attr("width");
 
+    // set chart-specific variables
     var margin = 20;
     var chartHeight = height - 2*margin;
     var chartWidth = width - 2*margin;
     var padding = 5; 
     var barWidth= chartWidth/data.length - padding;
-
     var color_list =["#407F7F", "#226666", "#0D4D4D", "#003333"];
 
+    // bind data to bars 
 	changing_bars= svg.selectAll("g")
 	.data(data);
 
+	//change bar height when data changes
 	changing_bars.select(".bar")
 		.transition()
         .duration(2000)
     	.attr('y', function(d){return chartHeight+ margin- d.value * .01 * (chartHeight - 1.5 * margin) - 35;})
     	.attr('height', function(d){return (d.value * .01 * (chartHeight - 1.5 * margin));});
-    
+
+    // change bar labels when data changes
     changing_bars.select(".value")
 		.transition()
 	    .duration(2000)
 		.attr("y",chartHeight + margin - 38)
 		.text(function(d) { return d.value+"%"; })
 
+	// change bar group label when data changes
 	changing_bars.select(".grouplabel")
 		.text(function(d){return d.group.toUpperCase()})
 		.attr("x",function(d, i){return margin+barWidth/2+i*chartWidth/data.length;})
 		.attr("y", function(d){return chartHeight;})
 		.style("fill", "#669999");
 
+	// change bar site label when different button is chosen 
 	changing_bars.select(".sitelabel")
 		.transition()
 	    .duration(2000)
 	    .text(site.toUpperCase() +" - " + category.toUpperCase() + " DISTRIBUTION");
 }
 
-/* From 
-   http://www.pewinternet.org/files/2015/01/PI_SocialMediaUpdate20144.pdf */
-
-
 function bar(site,category,svg_id)
-{
+{   // adds content for bar graphs (part 1 visualizations)
+
  	var data = getDataRows(site, category);
     var svg = d3.select("#"+svg_id);
 
@@ -141,18 +139,19 @@ function bar(site,category,svg_id)
     var height = svg.attr("height");
     var width = svg.attr("width");
 
+    // set chart specific variables
     var margin = 20;
     var chartHeight = height - 2*margin;
     var chartWidth = width - 2*margin;
     var padding = 5; 
     var barWidth= chartWidth/data.length - padding;
+	var color_list =["#407F7F", "#226666", "#0D4D4D", "#003333"];
 
-    var color_list =["#407F7F", "#226666", "#0D4D4D", "#003333"];
-
+    // creating group for button press, bind data
     changing_bars = svg.selectAll("g")
 		.data(data)
 		.enter().append("g")
-
+	// creating bars tied to the data
     changing_bars.append('rect')
     	.attr("class","bar")
     	.attr('x', function(d, i){return margin+i*chartWidth/data.length;})
@@ -161,13 +160,12 @@ function bar(site,category,svg_id)
     	.attr('height', function(d){return (d.value * .01 * (chartHeight - 1.5 * margin));})
     	.attr('fill', function(d,i) {return color_list[i];});
     
+    // creating and styling text labels
 	changing_bars.append("text")
 		.attr("class","value")
 		.text(function(d){return d.value + "%";})
 		.attr("x",function(d, i){return margin + barWidth / 2 + i * chartWidth / data.length;})
  		.attr("y", chartHeight + margin - 38)
- 		//.attr("y",function(d){return chartHeight + margin - d.value * .01 * (chartHeight - 1.5 *margin) + d.value * .2 * .01 * (chartHeight - 1.5 * margin);})
-		//.attr("dy","0.3em")
 		.style("text-anchor","middle")
 		.style("font-family","sans-serif")
 		.style("font-weight","bold")
@@ -200,74 +198,40 @@ function bar(site,category,svg_id)
 
 }
 
-// function stackedbars(category, svg_id)
-// {
-// 	var svg = d3.select("#"+svg_id);
-// 	var last_y_height = 0;
-// 	var site_list = ["linkedin", "pinterest", "facebook", "instagram", "twitter"];
-// 	var color_list =["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"];
-// 	var height = svg.attr("height");
-//     var width = svg.attr("width");
-//     var margin = 20;
-//     var chartHeight = height - 2*margin;
-//     var chartWidth = width - 2*margin;
-//     var padding = 5; 
-//     var barWidth= chartWidth/site_list.length - padding;
-
-// 	for (var i = 0; i < site_list.length; i++)
-// 		{
-// 	 	var data = getDataRows(site_list[i], category);
-// 		svg.selectAll('rect')
-// 	    	.data(data)
-// 	    	.enter()
-// 	    	.append('rect')
-// 	    	.attr('x', function() {return barWidth*i+padding*i+margin;}) 
-// 	    	.attr('y', function(d){return chartHeight+ margin- d.value * .01 * (chartHeight - 1.5 * margin) - 35 - last_y_height;})
-// 	    	.attr('width', barWidth)
-// 	    	.attr('height', function(d){last_y_height = last_y_height + (d.value * .01 * (chartHeight - 1.5 * margin)); console.log(last_y_height); return (d.value * .01 * (chartHeight - 1.5 * margin));})
-// 	    	.attr('fill', function(d,i) {return color_list[i];});
-// 		}
-
-
-
-// }
+// RIP stackedBars()
 
 function circle(site, category,svg_id, site_index)
-{
+{	// generate circles representing each group of the data 
+
     var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];
     var data = getDataRows(site, category);
-    //console.log(data.length);
     var svg = d3.select("#"+svg_id);
 
     // get the size of the SVG element
     var height = svg.attr("height");
     var width = svg.attr("width");
 
-    // the chart lives in the svg surrounded by a margin of 100px
+    // set chart-specific variables
     var margin = 15;
     var padding = 10;
     var chartHeight = height - 2*margin;
     var chartWidth = width - 2*margin;
-    // figure out the width of the bars so that all bars fit and 
-    //   there is one bar width between them
-    // note that every data point now has _2_ bars associated with 
-    //   it
-    //var maxArea = Math.PI*Math.pow(chartWidth/(2*data2013.length), 2);
+    
     var max_radius = Math.round(.5 * chartWidth/site_list.length);
-    var color_list ="black";
-    var sum_data = 0; 
+    var color_list ="black"; //since the viz relies on semi-transparent overlays, only one color is necessary 
+    var sum_data = 0; // initialized to 0 before being reassigned below
 
-    var sortedData = data.sort(function(a,b){return a.value - b.value;}).reverse();
-    console.log(sortedData);
+    var sortedData = data.sort(function(a,b){return a.value - b.value;}).reverse(); //sort data by size, so that the largest circle plots in the back (for tooltips)
+
+    //reassign sum_data (sum of v.value) the category
     sortedData.forEach(function(v,i)
     {
        sum_data += v.value; //sum values for each site/category
     })
 
-    // first draw all the 2014 circles, then 2013
+    // for each group, plot circle in site column and add tooltips
 	sortedData.forEach(function(v,i) {
-		x_pos = (chartWidth/site_list.length*site_index) + margin + max_radius;
-
+		// set tooltip style
 	    var tooltip = d3.select("body")
 		.append("div")
 		.style("position", "absolute")
@@ -276,8 +240,9 @@ function circle(site, category,svg_id, site_index)
 		.style("background", "white")
 		.text(v.group + ", " + v.value);
 
+		// set circle style + position
 	    var radius = v.value / sum_data * max_radius;
-	    // figure out where the vetical bar starts
+	    var x_pos = (chartWidth/site_list.length*site_index) + margin + max_radius;
 	    var yPos = height - margin - radius - padding;
         svg.append("circle")
 		.attr("cx",x_pos)
@@ -291,8 +256,6 @@ function circle(site, category,svg_id, site_index)
 		.on("mouseover", function(){return tooltip.style("visibility", "visible");})
 		.on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
 		.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-		//.append("svg:title")
-   		//.text(v.group +", "+v.value);
 
 		//label sites
 		svg.append("text")
@@ -320,17 +283,16 @@ function circle(site, category,svg_id, site_index)
 }
 
 function circle_plotting(category, svg_id)
-{
+{	// for each category, create a circle-based visualization comparing all sites
 	var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];  
 	for (var i = 0; i < site_list.length; i++)
 	{
-		//console.log('call circle function ' + i);
 		circle(site_list[i],category, svg_id, i);
 	}
 }
     
     function make_svgs(num_svg)
-    {
+    {	// initialize svg size and id
     	var height = 250;
     	var width = 1300;
     	var margin = 10;
@@ -348,7 +310,7 @@ function circle_plotting(category, svg_id)
     }
 
 function getDataRows (site,category) 
-{
+{	// return relevant data given site and category 
     var data = [
 	{ site:"linkedin", category:"gender", group:"men", value:26},
 	{ site:"linkedin", category:"gender", group:"women", value:25},
@@ -366,8 +328,8 @@ function getDataRows (site,category)
 	{ site:"linkedin", category:"salary", group:"$30,000-$49,999", value:21},				
 	{ site:"linkedin", category:"salary", group:"$50,000-$74,999", value:32},
 	{ site:"linkedin", category:"salary", group:"$75,000+", value:41},				
-	{ site:"linkedin", category:"employment", group:"Employed", value:32},				
-	{ site:"linkedin", category:"employment", group:"Not employed", value:41},				
+	{ site:"linkedin", category:"employment", group:"Employed", value:32}, // note: employment not provided by any other site, not visualized in this assignment				
+	{ site:"linkedin", category:"employment", group:"Not employed", value:41},	// note: employment data not provided by any other site, not visuzalized in this assignment 
 	{ site:"linkedin", category:"location", group:"Urban", value:30},				
 	{ site:"linkedin", category:"location", group:"Suburban", value:26},				
 	{ site:"linkedin", category:"location", group:"Rural", value:12},				
@@ -388,8 +350,6 @@ function getDataRows (site,category)
 	{ site:"twitter", category:"salary", group:"$30,000-$49,999", value:19},				
 	{ site:"twitter", category:"salary", group:"$50,000-$74,999", value:25},
 	{ site:"twitter", category:"salary", group:"$75,000+", value:26},				
-	// { site:"twitter", category:"employment", group:"Employed", value:0},				
-	// { site:"twitter", category:"employment", group:"Not employed", value:0},				
 	{ site:"twitter", category:"location", group:"Urban", value:30},				
 	{ site:"twitter", category:"location", group:"Suburban", value:21},				
 	{ site:"twitter", category:"location", group:"Rural", value:15},				
