@@ -234,6 +234,7 @@ function bar(site,category,svg_id)
 
 function circle(site, category,svg_id, site_index)
 {
+    var site_list = ["linkedin", "twitter","instagram", "facebook", "pinterest"];
     var data = getDataRows(site, category);
     //console.log(data.length);
     var svg = d3.select("#"+svg_id);
@@ -243,7 +244,7 @@ function circle(site, category,svg_id, site_index)
     var width = svg.attr("width");
 
     // the chart lives in the svg surrounded by a margin of 100px
-    var margin = 50;
+    var margin = 15;
     var padding = 10;
     var chartHeight = height - 2*margin;
     var chartWidth = width - 2*margin;
@@ -252,21 +253,28 @@ function circle(site, category,svg_id, site_index)
     // note that every data point now has _2_ bars associated with 
     //   it
     //var maxArea = Math.PI*Math.pow(chartWidth/(2*data2013.length), 2);
-    var max_radius = Math.round(.5 * chartWidth/data.length);
-    var color_list ="#0099CC";
+    var max_radius = Math.round(.5 * chartWidth/site_list.length);
+    var color_list ="black";
     var sum_data = 0; 
 
-    data.forEach(function(v,i)
+    var sortedData = data.sort(function(a,b){return a.value - b.value;}).reverse();
+    console.log(sortedData);
+    sortedData.forEach(function(v,i)
     {
        sum_data += v.value; //sum values for each site/category
     })
 
     // first draw all the 2014 circles, then 2013
-	data.forEach(function(v,i) {
-		x_pos = chartWidth/5 *site_index+ margin + max_radius;
+	sortedData.forEach(function(v,i) {
+		x_pos = (chartWidth/site_list.length*site_index) + margin + max_radius;
 
-	    //var radius = Math.sqrt(v.value*.01*maxArea/Math.PI);
-	    //var radius = 15*Math.sqrt(v.value/Math.PI);
+	    var tooltip = d3.select("body")
+		.append("div")
+		.style("position", "absolute")
+		.style("z-index", "10")
+		.style("visibility", "hidden")
+		.style("background", "white")
+		.text(v.group + ", " + v.value);
 
 	    var radius = v.value / sum_data * max_radius;
 	    // figure out where the vetical bar starts
@@ -278,26 +286,13 @@ function circle(site, category,svg_id, site_index)
 		.style("fill",color_list)
 		.style("opacity", .4)
 		.style("stroke","white")
-		.style("stroke-width","1px");
-
+		.style("stroke-width","1px")
 		//label circles with group name
-	 	svg.append("text")
-		.attr("x",x_pos)
- 	 	.attr("y",yPos- radius) //plot label on top of circle
-		// .attr("dy","0.3em")
-		.style("text-anchor","middle")
-		.style("font-family","sans-serif")
-		.style("font-weight","bold")
-		.style("font-size","12px")
-		.style("fill","black")
-		.text(v.group.toUpperCase()+", "+v.value+"%");
-		// .append("tspan")
-		// .attr("x",margin+(i*2.5)*est_radius + radius)
-		// .text(v.value)
-		// .append("tspan")
-		// .attr("x",margin+(i*2.5)*est_radius + radius)
-		// .attr("dy", 10)
-		// .text("("+v.group+")");
+		.on("mouseover", function(){return tooltip.style("visibility", "visible");})
+		.on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+		.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+		//.append("svg:title")
+   		//.text(v.group +", "+v.value);
 
 		//label sites
 		svg.append("text")
@@ -315,12 +310,12 @@ function circle(site, category,svg_id, site_index)
 		svg.append("text")
 		.text(category.toUpperCase())
 		.attr("x", width/2)
-		.attr("y", margin)
+		.attr("y", margin + .1*chartHeight)
 		.style("text-anchor","middle")
 		.style("font-family","sans-serif")
 		.style("font-weight","bold")
 		.style("font-size","16px")
-		.style("fill", color_list);
+		.style("fill", "black");
 
 }
 
@@ -336,8 +331,8 @@ function circle_plotting(category, svg_id)
     
     function make_svgs(num_svg)
     {
-    	var height = 350;
-    	var width = 800;
+    	var height = 250;
+    	var width = 1300;
     	var margin = 10;
     	for (var i = 0; i < num_svg; i++)
     	{
